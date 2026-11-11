@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KWGT preset.json - Complete Schema Documentation</title>
+    <style>
+        :root {
+            --bg: #0f0f0f;
+            --sidebar-bg: #161616;
+            --content-bg: #1e1e1e;
+            --text: #e0e0e0;
+            --text-muted: #9e9e9e;
+            --accent: #bb86fc;
+            --accent-blue: #03dac6;
+            --code-bg: #2d2d2d;
+            --border: #333;
+            --tag-bg: #3700b3;
+        }
+        * { box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            margin: 0;
+            display: flex;
+        }
+        /* Sidebar Navigation */
+        nav {
+            width: 320px;
+            height: 100vh;
+            background-color: var(--sidebar-bg);
+            border-right: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            overflow-y: auto;
+            padding: 20px 0;
+            flex-shrink: 0;
+        }
+        nav h2 { font-size: 1.1rem; padding: 0 20px; color: var(--accent); margin-bottom: 10px; }
+        nav ul { list-style: none; padding: 0; margin: 0; }
+        nav li a {
+            display: block;
+            padding: 8px 20px;
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: 0.2s;
+        }
+        nav li a:hover, nav li a.active { background-color: var(--content-bg); color: var(--accent-blue); border-left: 3px solid var(--accent-blue); }
+        
+        /* Main Content */
+        main {
+            flex-grow: 1;
+            padding: 40px 60px;
+            max-width: 1150px;
+            background-color: var(--bg);
+        }
+        h1 { color: var(--accent); font-size: 2.5rem; border-bottom: 2px solid var(--border); padding-bottom: 10px; margin-bottom: 30px;}
+        h2 { color: var(--accent-blue); margin-top: 40px; border-bottom: 1px solid var(--border); padding-bottom: 5px; }
+        h3 { color: var(--accent); margin-top: 30px; }
+        p { color: #ccc; }
+        
+        /* Code and Tables */
+        code {
+            font-family: "Fira Code", Consolas, monospace;
+            background-color: var(--code-bg);
+            padding: 2px 6px;
+            border-radius: 4px;
+            color: #ff9800;
+            font-size: 0.9em;
+        }
+        pre {
+            background-color: var(--code-bg);
+            padding: 15px;
+            border-radius: 8px;
+            overflow-x: auto;
+            border: 1px solid var(--border);
+        }
+        pre code { background: transparent; padding: 0; color: var(--text); font-size: 0.85rem; }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background-color: var(--content-bg);
+            border-radius: 8px;
+            overflow: hidden;
+            font-size: 0.9rem;
+        }
+        th, td { padding: 12px 15px; text-align: left; border-bottom: 1px solid var(--border); vertical-align: top; }
+        th { background-color: #252525; color: var(--accent-blue); font-weight: 600; }
+        tr:last-child td { border-bottom: none; }
+        
+        /* Tags/Badges */
+        .tag {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            margin-right: 5px;
+        }
+        .tag.string { background: #1976d2; color: white; }
+        .tag.number { background: #388e3c; color: white; }
+        .tag.boolean { background: #d32f2f; color: white; }
+        .tag.color { background: #f57c00; color: white; }
+        .tag.array { background: #7b1fa2; color: white; }
+        .tag.object { background: #455a64; color: white; }
+        .tag.formula { background: #c2185b; color: white; }
+        
+        .note {
+            background-color: rgba(3, 218, 198, 0.1);
+            border-left: 4px solid var(--accent-blue);
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 0 8px 8px 0;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- SIDEBAR NAVIGATION -->
+    <nav>
+        <h2>KWGT JSON Schema</h2>
+        <ul>
+            <li><a href="#overview">Overview</a></li>
+            <li><a href="#preset-info">1. preset_info</a></li>
+            <li><a href="#preset-root">2. preset_root</a></li>
+            <li><a href="#globals-list">3. globals_list</a></li>
+            <li><a href="#modules">4. Common Module Properties</a></li>
+            <li><a href="#overlap-module">4.1 OverlapLayerModule</a></li>
+            <li><a href="#stack-module">4.2 StackLayerModule</a></li>
+            <li><a href="#komponent-module">4.3 KomponentModule</a></li>
+            <li><a href="#shape-module">4.4 ShapeModule</a></li>
+            <li><a href="#text-module">4.5 TextModule</a></li>
+            <li><a href="#bitmap-module">4.6 BitmapModule</a></li>
+            <li><a href="#fonticon-module">4.7 FontIconModule</a></li>
+            <li><a href="#bindings">5. Global Bindings</a></li>
+            <li><a href="#effects">6. Advanced FX</a></li>
+            <li><a href="#events">7. Events</a></li>
+            <li><a href="#formulas">8. Formula Reference</a></li>
+            <li><a href="#edge-cases">9. Edge Cases & Mechanics</a></li>
+            <li><a href="#absolute-quirks">10. Absolute Quirks</a></li>
+            <li><a href="#fallbacks-events">11. Fallbacks & Event Variations</a></li>
+            <li><a href="#final-variations">12. Final Structural Variations</a></li>
+        </ul>
+    </nav>
+
+    <!-- MAIN CONTENT -->
+    <main>
+        <h1>KWGT preset.json Schema</h1>
+        <p>This is the complete, definitive schema documentation for the Kustom Widget Maker (KWGT) <code>preset.json</code> file format (Schema Version 13). This documentation covers all properties observed across standard, weather, and media player widgets, including exact edge-case behavior and fallback logic.</p>
+
+        <!-- 1. PRESET INFO -->
+        <section id="preset-info">
+            <h2>1. <code>preset_info</code> (Root Metadata)</h2>
+            <p>The root object containing metadata about the widget's dimensions, author, and display settings.</p>
+            <table>
+                <thead>
+                    <tr><th>Property</th><th>Type</th><th>Description</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td><code>version</code></td><td><span class="tag number">Number</span></td><td>The schema version. Currently <code>13</code>.</td></tr>
+                    <tr><td><code>title</code></td><td><span class="tag string">String</span></td><td>The name of the widget displayed in the KWGT list.</td></tr>
+                    <tr><td><code>description</code></td><td><span class="tag string">String</span></td><td>A brief description of the widget.</td></tr>
+                    <tr><td><code>author</code></td><td><span class="tag string">String</span></td><td>Name of the creator.</td></tr>
+                    <tr><td><code>email</code></td><td><span class="tag string">String</span></td><td>Contact email of the creator.</td></tr>
+                    <tr><td><code>width</code> / <code>height</code></td><td><span class="tag number">Number</span></td><td>The base canvas dimensions in pixels (e.g., 916 x 542).</td></tr>
+                    <tr><td><code>locked</code></td><td><span class="tag boolean">Boolean</span></td><td>If <code>true</code>, the user cannot edit the widget layers.</td></tr>
+                    <tr><td><code>features</code></td><td><span class="tag string">String</span></td><td>Space-separated tags (e.g., <code>"WEATHER FORECAST"</code>).</td></tr>
+                    <tr><td><code>release</code></td><td><span class="tag number">Number</span></td><td>Internal release ID.</td></tr>
+                    <tr><td><code>archive</code></td><td><span class="tag string">String</span></td><td>Usually <code>null</code>. References a Kustom asset archive.</td></tr>
+                    <tr><td><code>pflags</code></td><td><span class="tag number">Number</span></td><td>Internal bitmask flags (e.g., lock screen widget behavior). Usually <code>0</code>.</td></tr>
+                    <tr><td><code>xscreens</code> / <code>yscreens</code></td><td><span class="tag number">Number</span></td><td>Defines if the widget spans across multiple home screen pages.</td></tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- 2. PRESET ROOT -->
+        <section id="preset-root">
+            <h2>2. <code>preset_root</code> (Root Container)</h2>
+            <p>The absolute base of the widget layout.</p>
+            <table>
+                <thead>
+                    <tr><th>Property</th><th>Type</th><th>Description</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td><code>internal_type</code></td><td><span class="tag string">String</span></td><td>Must be <code>"RootLayerModule"</code>.</td></tr>
+                    <tr><td><code>globals_list</code></td><td><span class="tag object">Object</span></td><td>Contains all global variables (themes, responsive sizing).</td></tr>
+                    <tr><td><code>viewgroup_items</code></td><td><span class="tag array">Array</span></td><td>An array of all visual modules directly inside the root.</td></tr>
+                    <tr><td><code>internal_events</code></td><td><span class="tag array">Array</span></td><td>Global touch actions. Can be defined without a <code>"type"</code> property at the root level.</td></tr>
+                    <tr><td><code>config_scale_value</code></td><td><span class="tag number">Number</span></td><td>The internal editor scaling factor. Critical for retaining the exact size the author designed.</td></tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- 3. GLOBALS LIST -->
+        <section id="globals-list">
+            <h2>3. <code>globals_list</code> (Global Variables)</h2>
+            <p>Allows you to define reusable variables for colors, sizes, and text.</p>
+            <table>
+                <thead>
+                    <tr><th>Property</th><th>Type</th><th>Description</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td><code>index</code></td><td><span class="tag number">Number</span></td><td>The order index. Does not always start at 1 (especially inside Komponents).</td></tr>
+                    <tr><td><code>type</code></td><td><span class="tag string">String</span></td><td><code>COLOR</code>, <code>NUMBER</code>, <code>TEXT</code>, <code>FONT</code>.</td></tr>
+                    <tr><td><code>title</code></td><td><span class="tag string">String</span></td><td>The name used in formulas via <code>$gv(name)$</code>.</td></tr>
+                    <tr><td><code>description</code></td><td><span class="tag string">String</span></td><td>(Optional) Description shown in the KWGT editor.</td></tr>
+                    <tr><td><code>value</code></td><td><span class="tag string">Mixed</span></td><td>The static fallback value. Can be omitted if <code>global_formula</code> is used.</td></tr>
+                    <tr><td><code>global_formula</code></td><td><span class="tag formula">String</span></td><td>A KWGT math formula that calculates the value dynamically.</td></tr>
+                    <tr><td><code>min</code> / <code>max</code></td><td><span class="tag number">Number</span></td><td>Restricts the allowable slider range. Note: Not all globals require these properties.</td></tr>
+                    <tr><td><code>toggles</code></td><td><span class="tag number">Number</span></td><td>Usually <code>10</code>. Indicates the variable is dynamic.</td></tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- 4. MODULES -->
+        <section id="modules">
+            <h2>4. Common Module Properties</h2>
+            <p>Every visual element in KWGT is a Module. They share these common properties for positioning:</p>
+            <table>
+                <thead><tr><th>Property</th><th>Type</th><th>Description</th></tr></thead>
+                <tbody>
+                    <tr><td><code>internal_title</code></td><td><span class="tag string">String</span></td><td>The layer name shown in the KWGT editor.</td></tr>
+                    <tr><td><code>position_anchor</code></td><td><span class="tag string">String</span></td><td><code>TOPLEFT</code>, <code>CENTER</code>, <code>BOTTOMRIGHT</code>, <code>TOPRIGHT</code>, <code>BOTTOMLEFT</code>, <code>CENTERRIGHT</code>, <code>BOTTOM</code>.</td></tr>
+                    <tr><td><code>position_offset_x</code> / <code>_y</code></td><td><span class="tag number">Number</span></td><td>Shifts the module outwards from its anchor point.</td></tr>
+                    <tr><td><code>position_padding_*</code></td><td><span class="tag number">Number</span></td><td>Distance from the anchor to the content inward. (Padding is applied *before* offset).</td></tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section id="overlap-module">
+            <h3>4.1 <code>OverlapLayerModule</code></h3>
+            <p>Stacks child elements on top of each other (Z-Index layout).</p>
+            <table>
+                <thead><tr><th>Property</th><th>Type</th><th>Description</th></tr></thead>
+                <tbody>
+                    <tr><td><code>viewgroup_items</code></td><td><span class="tag array">Array</span></td><td>The child modules that overlap inside this container.</td></tr>
+                    <tr><td><code>fx_mask</code></td><td><span class="tag string">String</span></td><td><code>"CLIP_ALL"</code> to clip all children. <code>"CLIP_NEXT"</code> to clip only the immediate next layer.</td></tr>
+                    <tr><td><code>config_visible</code></td><td><span class="tag formula">String</span></td><td>Used with <code>ALWAYS</code> or <code>NEVER</code> to toggle module visibility.</td></tr>
+                    <tr><td><code>config_fx_radius</code></td><td><span class="tag number">Number</span></td><td>Applies a corner radius mask to the container itself, clipping all its children to that shape.</td></tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section id="stack-module">
+            <h3>4.2 <code>StackLayerModule</code></h3>
+            <p>Lines up child elements sequentially (Flexbox layout).</p>
+            <table>
+                <thead><tr><th>Property</th><th>Type</th><th>Description</th></tr></thead>
+                <tbody>
+                    <tr><td><code>config_stacking</code></td><td><span class="tag string">String</span></td><td><code>VERTICAL_CENTER</code>, <code>HORIZONTAL_CENTER</code>, etc.</td></tr>
+                    <tr><td><code>config_margin</code></td><td><span class="tag number">Number</span></td><td>Spacing between items. <strong>Supports negative float values</strong> (e.g., <code>-4.4</code>) to force overlapping.</td></tr>
+                    <tr><td><code>config_scale_value</code></td><td><span class="tag number">Number</span></td><td>Internal editor scaling factor for this specific stack.</td></tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section id="komponent-module">
+            <h3>4.3 <code>KomponentModule</code></h3>
+            <p>A reusable widget block. Acts like a group but has its own scoped globals.</p>
+            <table>
+                <thead><tr><th>Property</th><th>Type</th><th>Description</th></tr></thead>
+                <tbody>
+                    <tr><td><code>globals_list</code></td><td><span class="tag object">Object</span></td><td>Globals scoped strictly inside this Komponent (isolated from Root globals).</td></tr>
+                    <tr><td><code>internal_description</code></td><td><span class="tag string">String</span></td><td>A description of the Komponent's purpose.</td></tr>
+                    <tr><td><code>internal_formulas</code></td><td><span class="tag object">Object</span></td><td>Used to set <code>config_visible</code>.</td></tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section id="shape-module">
+            <h3>4.4 <code>ShapeModule</code></h3>
+            <p>Draws geometric shapes, backgrounds, and progress bar components.</p>
+            <table>
+                <thead><tr><th>Property</th><th>Type</th><th>Description</th></tr></thead>
+                <tbody>
+                    <tr><td><code>shape_type</code></td><td><span class="tag string">String</span></td><td><code>RECT</code>, <code>OVAL</code>, <code>CIRCLE</code>, <code>EXAGON</code>, <code>ARC</code>, <code>PATH</code>.</td></tr>
+                    <tr><td><code>shape_width</code> / <code>_height</code></td><td><span class="tag number">Number</span></td><td>Dimensions in pixels/DP.</td></tr>
+                    <tr><td><code>shape_corners</code></td><td><span class="tag number">Number</span></td><td>Corner radius. <code>360</code> makes it fully rounded.</td></tr>
+                    <tr><td><code>shape_angle</code></td><td><span class="tag number">Number</span></td><td>Angle of the arc in degrees (required for <code>ARC</code>).</td></tr>
+                    <tr><td><code>shape_rotate_mode</code></td><td><span class="tag string">String</span></td><td>e.g., <code>"DEG180"</code> (flips an arc to make a wave).</td></tr>
+                    <tr><td><code>paint_color</code></td><td><span class="tag color">String</span></td><td>Hex color <code>#AARRGGBB</code>.</td></tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section id="text-module">
+            <h3>4.5 <code>TextModule</code> / <code>CurvedTextModule</code></h3>
+            <p>Displays static text, dynamic formulas, or media info.</p>
+            <table>
+                <thead><tr><th>Property</th><th>Type</th><th>Description</th></tr></thead>
+                <tbody>
+                    <tr><td><code>text_expression</code></td><td><span class="tag formula">String</span></td><td>The text or formula. Supports BBcode (e.g., <code>"[b]Text[/b]"</code>).</td></tr>
+                    <tr><td><code>text_family</code></td><td><span class="tag string">String</span></td><td>The font path (e.g., <code>"kfile://..."</code>).</td></tr>
+                    <tr><td><code>text_size</code></td><td><span class="tag number">Number</span></td><td>Float value (e.g., <code>32.0</code>).</td></tr>
+                    <tr><td><code>text_align</code></td><td><span class="tag string">String</span></td><td><code>LEFT</code>, <code>CENTER</code>, <code>RIGHT</code>.</td></tr>
+                    <tr><td><code>paint_color</code></td><td><span class="tag color">String</span></td><td>Hex color.</td></tr>
+                    <tr><td><code>fx_shadow</code></td><td><span class="tag string">String</span></td><td>Text can cast shadows: <code>"OUTER"</code>.</td></tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section id="bitmap-module">
+            <h3>4.6 <code>BitmapModule</code></h3>
+            <p>Displays images or album covers.</p>
+            <table>
+                <thead><tr><th>Property</th><th>Type</th><th>Description</th></tr></thead>
+                <tbody>
+                    <tr><td><code>bitmap_bitmap</code></td><td><span class="tag formula">String</span></td><td>File path or formula (e.g., <code>"$mi(cover)$"</code>).</td></tr>
+                    <tr><td><code>bitmap_width</code> / <code>_height</code></td><td><span class="tag number">Number</span></td><td>Dimensions.</td></tr>
+                    <tr><td><code>bitmap_filter</code></td><td><span class="tag string">String</span></td><td><code>"COLORIZE"</code> applies a tint.</td></tr>
+                    <tr><td><code>bitmap_filter_color</code></td><td><span class="tag color">String</span></td><td>The color to tint the image with.</td></tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section id="fonticon-module">
+            <h3>4.7 <code>FontIconModule</code></h3>
+            <p>Displays vector icons from an icon font file.</p>
+            <table>
+                <thead><tr><th>Property</th><th>Type</th><th>Description</th></tr></thead>
+                <tbody>
+                    <tr><td><code>icon_icon</code></td><td><span class="tag string">String</span></td><td>The icon name (e.g., <code>"skip_next"</code>). Can be a formula.</td></tr>
+                    <tr><td><code>icon_size</code></td><td><span class="tag number">Number</span></td><td>Size in pixels.</td></tr>
+                    <tr><td><code>icon_set</code></td><td><span class="tag string">String</span></td><td>Path to the icon font.</td></tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- 5. BINDINGS -->
+        <section id="bindings">
+            <h2>5. Global Bindings & Overrides</h2>
+            <p>Any property can be overridden by a Global Variable or a Formula.</p>
+            
+            <h3><code>internal_toggles</code></h3>
+            <p>A bitmask (e.g., <code>100</code>, <code>10</code>, <code>0</code>) that tells KWGT which properties are active. <strong>If a formula is applied to a property, its toggle must be set</strong>.</p>
+<pre><code>"internal_toggles": {
+  "paint_color": 100,
+  "shape_width": 10
+}</code></pre>
+
+            <h3><code>internal_globals</code></h3>
+            <p>Binds a property directly to a global variable name.</p>
+<pre><code>"internal_globals": {
+  "paint_color": "accent"
+}</code></pre>
+
+            <h3><code>internal_formulas</code></h3>
+            <p>Overrides a property with a dynamic mathematical calculation or multi-line script.</p>
+<pre><code>"internal_formulas": {
+  "shape_corners": "$gv(side)/9$"
+}</code></pre>
+        </section>
+
+        <!-- 6. FX -->
+        <section id="effects">
+            <h2>6. Advanced FX & Masks</h2>
+            <p>Applied mostly to <code>ShapeModule</code> and containers.</p>
+            <table>
+                <thead><tr><th>Property</th><th>Type</th><th>Description</th></tr></thead>
+                <tbody>
+                    <tr><td><code>fx_mask</code></td><td><span class="tag string">String</span></td><td><code>CLIP_ALL</code> (clips all children), <code>CLIP_NEXT</code> (clips the immediate next layer).</td></tr>
+                    <tr><td><code>fx_gradient</code></td><td><span class="tag string">String</span></td><td><code>RADIAL</code>, <code>LINEAR</code>, <code>BITMAP</code>.</td></tr>
+                    <tr><td><code>fx_gradient_bitmap</code></td><td><span class="tag formula">String</span></td><td>Puts an image inside the gradient.</td></tr>
+                    <tr><td><code>fx_bitmap_dim</code></td><td><span class="tag number">Number</span></td><td>Controls the opacity/darkness of the bitmap overlay.</td></tr>
+                    <tr><td><code>fx_gradient_offset</code></td><td><span class="tag number">Number</span></td><td>Controls the spread position of the gradient.</td></tr>
+                    <tr><td><code>fx_shadow</code></td><td><span class="tag string">String</span></td><td><code>OUTER</code> or <code>INNER</code>.</td></tr>
+                    <tr><td><code>fx_shadow_color</code></td><td><span class="tag color">String</span></td><td>Hex color of the shadow.</td></tr>
+                    <tr><td><code>fx_shadow_blur</code></td><td><span class="tag number">Number</span></td><td>Blur radius.</td></tr>
+                    <tr><td><code>fx_shadow_distance</code></td><td><span class="tag number">Number</span></td><td>Distance the shadow is cast.</td></tr>
+                    <tr><td><code>fx_shadow_direction</code></td><td><span class="tag number">Number</span></td><td>Angle direction of the shadow.</td></tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- 7. EVENTS -->
+        <section id="events">
+            <h2>7. Events (<code>internal_events</code>)</h2>
+            <p>Used to add touch interactions to any module.</p>
+            <table>
+                <thead><tr><th>Property</th><th>Type</th><th>Description</th></tr></thead>
+                <tbody>
+                    <tr><td><code>type</code></td><td><span class="tag string">String</span></td><td><code>SINGLE_TAP</code>, <code>DOUBLE_TAP</code>, <code>LONG_TAP</code>. (Can be omitted at the Root level).</td></tr>
+                    <tr><td><code>action</code></td><td><span class="tag string">String</span></td><td><code>LAUNCH_APP</code>, <code>MUSIC</code>, <code>KUSTOM_ACTION</code>, <code>DISABLED</code>.</td></tr>
+                    <tr><td><code>music_action</code></td><td><span class="tag string">String</span></td><td>If action is MUSIC: <code>NEXT</code>, <code>PREVIOUS</code>, <code>OPEN_APP</code>.</td></tr>
+                    <tr><td><code>intent</code></td><td><span class="tag string">String</span></td><td>Android Intent URI for launching apps.</td></tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- 8. FORMULAS -->
+        <section id="formulas">
+            <h2>8. Formula Function Reference</h2>
+            <p>Common Kustom formulas observed in the schemas.</p>
+            <table>
+                <thead><tr><th>Function</th><th>Description</th><th>Example</th></tr></thead>
+                <tbody>
+                    <tr><td><code>$df()$</code></td><td>Date/Time Format</td><td><code>$df(h:mm)$</code></td></tr>
+                    <tr><td><code>$gv()$</code></td><td>Get Global Variable</td><td><code>$gv(side)$</code></td></tr>
+                    <tr><td><code>$if(cond, A, B)$</code></td><td>Conditional logic</td><td><code>$if(si(darkmode)=1, #FFFFFFFF, #000000)$</code></td></tr>
+                    <tr><td><code>$mi()$</code></td><td>Media Info</td><td><code>$mi(title)$</code>, <code>$mi(cover)$</code></td></tr>
+                    <tr><td><code>$si()$</code></td><td>System Info</td><td><code>$si(rwidth)$</code>, <code>$si(darkmode)$</code></td></tr>
+                    <tr><td><code>$bi()$</code></td><td>Battery Info</td><td><code>$bi(level)$</code></td></tr>
+                    <tr><td><code>$wf()$</code> / <code>$wi()$</code></td><td>Weather Forecast/Info</td><td><code>$wf(min, 0)$</code>, <code>$wi(tempu)$</code></td></tr>
+                    <tr><td><code>$ce()$</code></td><td>Color Effect</td><td><code>$ce(gv(fgcolor), alpha, 19)$</code></td></tr>
+                    <tr><td><code>$tc()$</code></td><td>Text Conversion</td><td><code>$tc(up, text)$</code></td></tr>
+                    <tr><td><code>$bp()$</code></td><td>Bitmap Palette</td><td><code>$bp(vibrant, mi(cover))$</code></td></tr>
+                    <tr><td><code>$lv()$</code></td><td>Local Variable Assignment</td><td><code>$lv("w", 100)$</code></td></tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- 9. EDGE CASES -->
+        <section id="edge-cases">
+            <h2>9. Edge Cases & Undocumented Mechanics</h2>
+            <p>These are specific quirks found in the JSON files that the compiler must handle correctly.</p>
+
+            <div class="note">
+                <strong>1. Multi-line Scripts in Formulas</strong><br>
+                <code>internal_formulas</code> can contain line breaks (<code>\n</code>) to execute sequential logic. 
+            </div>
+
+            <div class="note">
+                <strong>2. Built-in Globals (e.g., <code>h</code>)</strong><br>
+                In the Weather widget, <code>shape_height</code> is bound to a global named <code>h</code>. <code>h</code> and <code>w</code> are <strong>built-in KWGT variables</strong> representing the Root widget's height/width.
+            </div>
+
+            <div class="note">
+                <strong>3. The <code>config_visible</code> Toggle Trap</strong><br>
+                Setting a formula for <code>config_visible</code> does nothing unless <code>"config_visible": 10</code> is present inside <code>internal_toggles</code>. 
+            </div>
+
+            <div class="note">
+                <strong>4. Global Scope Isolation in Komponents</strong><br>
+                A <code>KomponentModule</code> can have its own <code>globals_list</code>. These globals do not leak to the Root, and their indices often start at numbers other than 1.
+            </div>
+            
+            <div class="note">
+                <strong>5. Font File Paths</strong><br>
+                All font and image paths use the <code>kfile://</code> protocol.
+            </div>
+        </section>
+
+        <!-- 10. ABSOLUTE QUIRKS -->
+        <section id="absolute-quirks">
+            <h2>10. Absolute Edge Cases & Exact Quirks</h2>
+            <p>These represent the deepest structural anomalies in the JSON files that a compiler must replicate exactly.</p>
+
+            <div class="note">
+                <strong>1. Two-Line Script Formulas</strong><br>
+                In the Media Player progress bar, a formula uses <code>\n</code> to create a local variable on one line and evaluate it on the next:
+<pre><code>"internal_formulas": {
+  "position_padding_left": "$lv(\"w\",gv(pbwidth)*(mi(percent)/100))$\n$if(lv(w)<=0, \"0\", lv(w)-8)$"
+}</code></pre>
+                If the <code>\n</code> is stripped or converted to a space, KWGT will throw a formula error.
+            </div>
+
+            <div class="note">
+                <strong>2. Negative Float Precision</strong><br>
+                Stack margins are highly precise floats. In the Media Player, the wave effect relies on:
+                <code>"config_margin": -4.4</code>
+                The compiler must preserve this exact decimal value.
+            </div>
+
+            <div class="note">
+                <strong>3. Exact Shape Spelling</strong><br>
+                The Weather widget explicitly uses <code>"shape_type": "EXAGON"</code> (not HEXAGON). The Media Player uses <code>"CIRCLE"</code> instead of <code>OVAL</code>. Do not autocorrect these spellings.
+            </div>
+        </section>
+
+        <!-- 11. FALLBACKS & EVENTS -->
+        <section id="fallbacks-events">
+            <h2>11. Fallbacks & Event Variations</h2>
+            <p>Anomalies regarding static properties and root events.</p>
+
+            <div class="note">
+                <strong>1. Static Fallbacks Coexisting with Globals</strong><br>
+                Even when a property is bound to a global variable or formula, KWGT still expects the static property to be present as a fallback. 
+                In the <code>Time Date Info</code> widget, the "BG" shape has both a global binding and a static color:
+<pre><code>"internal_globals": {
+  "paint_color": "bgcolor"
+},
+"paint_color": "#FF000000"</code></pre>
+                The compiler must always output a valid static <code>paint_color</code> (or equivalent) even if it is fully overridden.
+            </div>
+
+            <div class="note">
+                <strong>2. Root Event Variations (Missing `"type"`)</strong><br>
+                The root <code>internal_events</code> array is highly inconsistent across widgets.
+                
+                <strong>Variation A (Time Date Info):</strong> No type, uses <code>KUSTOM_ACTION</code>.
+<pre><code>"internal_events": [
+  { "action": "KUSTOM_ACTION" }
+]</code></pre>
+
+                <strong>Variation B (NothingTemp):</strong> Explicit type, disabled action.
+<pre><code>"internal_events": [
+  { "type": "SINGLE_TAP", "action": "DISABLED" }
+]</code></pre>
+
+                <strong>Variation C (Media Player):</strong> No type, but specifies a music action.
+<pre><code>"internal_events": [
+  { "action": "MUSIC", "music_action": "OPEN_APP" }
+]</code></pre>
+                The compiler must not assume <code>"type": "SINGLE_TAP"</code> is required at the Root level.
+            </div>
+        </section>
+
+        <!-- 12. FINAL VARIATIONS -->
+        <section id="final-variations">
+            <h2>12. Final Structural Variations</h2>
+            <p>The last remaining edge-cases found in the Media Player and Date widgets.</p>
+
+            <div class="note">
+                <strong>1. Missing Static Properties (No Fallback)</strong><br>
+                While the Date widget included a static fallback <code>paint_color</code>, the Media Player progress bar "Clip Bg" shape explicitly omits the static property entirely, relying only on the global:
+<pre><code>"internal_type": "ShapeModule",
+"internal_toggles": { "paint_color": 100, "shape_width": 10 },
+"internal_globals": { "paint_color": "fg-color" }
+// NO "paint_color" static property exists here.</code></pre>
+                The compiler must be capable of omitting the static fallback if the original Penpot node doesn't have one.
+            </div>
+
+            <div class="note">
+                <strong>2. Container-Level Events</strong><br>
+                Events are not limited to the Root or Leaf shapes. The Media Player attaches an event to an <code>OverlapLayerModule</code> named "Output":
+<pre><code>"internal_type": "OverlapLayerModule",
+"internal_title": "Output",
+"internal_events": [
+  { "type": "SINGLE_TAP", "action": "MUSIC", "music_action": "OPEN_APP" }
+]</code></pre>
+                Any module type can accept an <code>internal_events</code> array.
+            </div>
+
+            <div class="note">
+                <strong>3. Custom Font Paths in Icons</strong><br>
+                The <code>FontIconModule</code> can point to a custom font bundled inside the widget's own ZIP archive, rather than the system font:
+<pre><code>"icon_set": "kfile://org.kustom.provider/widgets/Material3_Media_Player.kwgt/icons/material.ttf"</code></pre>
+            </div>
+
+            <div class="note">
+                <strong>4. Text Modules Use Shape FX Shadows</strong><br>
+                Text modules (<code>CurvedTextModule</code>) use the exact same shadow FX properties as Shape modules:
+<pre><code>"fx_shadow": "OUTER",
+"fx_shadow_blur": 41,
+"fx_shadow_direction": 0,
+"fx_shadow_distance": 0,
+"fx_shadow_color": "#80000000"</code></pre>
+            </div>
+        </section>
+
+    </main>
+</body>
+</html>
