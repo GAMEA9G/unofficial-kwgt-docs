@@ -28,7 +28,7 @@
         }
         /* Sidebar Navigation */
         nav {
-            width: 320px;
+            width: 340px;
             height: 100vh;
             background-color: var(--sidebar-bg);
             border-right: 1px solid var(--border);
@@ -118,6 +118,18 @@
             margin: 20px 0;
             border-radius: 0 8px 8px 0;
         }
+        
+        .folder-structure {
+            background-color: #000;
+            color: #00ff00;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: "Fira Code", Consolas, monospace;
+            font-size: 0.9rem;
+            line-height: 1.4;
+            margin: 20px 0;
+            border: 1px solid #333;
+        }
     </style>
 </head>
 <body>
@@ -146,13 +158,14 @@
             <li><a href="#absolute-quirks">10. Absolute Quirks</a></li>
             <li><a href="#fallbacks-events">11. Fallbacks & Event Variations</a></li>
             <li><a href="#final-variations">12. Final Structural Variations</a></li>
+            <li><a href="#zip-container">13. Package & Install (ZIP)</a></li>
         </ul>
     </nav>
 
     <!-- MAIN CONTENT -->
     <main>
         <h1>KWGT preset.json Schema</h1>
-        <p>This is the complete, definitive schema documentation for the Kustom Widget Maker (KWGT) <code>preset.json</code> file format (Schema Version 13). This documentation covers all properties observed across standard, weather, and media player widgets, including exact edge-case behavior and fallback logic.</p>
+        <p>This is the complete, definitive schema documentation for the Kustom Widget Maker (KWGT) <code>preset.json</code> file format (Schema Version 13). This documentation covers all properties observed across standard, weather, and media player widgets, including exact edge-case behavior and file packaging.</p>
 
         <!-- 1. PRESET INFO -->
         <section id="preset-info">
@@ -552,6 +565,70 @@
 "fx_shadow_distance": 0,
 "fx_shadow_color": "#80000000"</code></pre>
             </div>
+        </section>
+
+        <!-- 13. ZIP CONTAINER -->
+        <section id="zip-container">
+            <h2>13. Package & Install (The .kwgt Container)</h2>
+            <p>To build a functioning KWGT widget, the <code>preset.json</code> cannot stand alone. It must be packaged inside a specific ZIP structure and renamed with the <code>.kwgt</code> extension.</p>
+
+            <h3>How to Package the Widget</h3>
+            <p>Creating a <code>.kwgt</code> file is as simple as zipping the contents (not the parent folder) and renaming the extension.</p>
+            
+            <ol>
+                <li>Create a folder on your computer (e.g., <code>MyAwesomeWidget</code>).</li>
+                <li>Inside this folder, place your <code>preset.json</code>.</li>
+                <li>If your widget uses images or custom fonts, create a folder named <code>bitmaps</code> for images and <code>fonts</code> for fonts, and place the files inside them.</li>
+                <li>Select all files/folders <strong>inside</strong> <code>MyAwesomeWidget</code> and right-click to Compress/Zip them.</li>
+                <li>Rename the resulting <code>.zip</code> file to <code>MyAwesomeWidget.kwgt</code>.</li>
+            </ol>
+
+            <h3>Directory Structure</h3>
+            <p>When a user extracts your <code>.kwgt</code> file, KWGT expects the following structure:</p>
+            <div class="folder-structure">
+MyWidget.kwgt (ZIP archive)<br>
+│<br>
+├── preset.json (Required)<br>
+├── bitmaps/ (Optional - for images)<br>
+│   ├── image1.png<br>
+│   └── album_cover.jpg<br>
+└── fonts/ (Optional - for custom fonts)<br>
+    └── MaterialIcons-Regular.ttf
+            </div>
+
+            <h3>Linking Files via `kfile://`</h3>
+            <p>When you include images or fonts in the ZIP, you cannot reference them with a normal file path. KWGT requires the <code>kfile://</code> protocol.</p>
+            
+            <div class="note">
+                <strong>How paths resolve inside KWGT:</strong><br>
+                If you bundle a font inside the ZIP, the reference in <code>preset.json</code> must point to the location of the <code>.kwgt</code> file on the user's device. 
+                Because the widget is installed to <code>/Kustom/widgets/MyWidget.kwgt</code>, the reference path looks like this:
+<pre><code>"text_family": "kfile://org.kustom.provider/widgets/MyWidget.kwgt/fonts/CustomFont.ttf"
+"bitmap_bitmap": "kfile://org.kustom.provider/widgets/MyWidget.kwgt/bitmaps/image1.png"</code></pre>
+                If you bundle system fonts (like Product Sans) that are built into KWGT, you omit the widget name:
+<pre><code>"text_family": "kfile://org.kustom.provider/fonts/ProductSans-Regular.ttf"</code></pre>
+            </div>
+
+            <h3>Installing the Widget</h3>
+            <p>Once the <code>.kwgt</code> file is created:</p>
+            <ol>
+                <li>Transfer the <code>.kwgt</code> file to your Android device.</li>
+                <li>Move the file into the <strong>Kustom > widgets</strong> folder on your phone's internal storage. (e.g., <code>Internal Storage/Kustom/widgets/MyAwesomeWidget.kwgt</code>).</li>
+                <li>Open the KWGT app. Go to the "Installed" or "Library" tab.</li>
+                <li>Your widget should appear in the list. Tap it to load it.</li>
+                <li>Add a KWGT widget to your home screen, select your preset, and tap Save.</li>
+            </ol>
+
+            <h3>Troubleshooting</h3>
+            <table>
+                <thead><tr><th>Issue</th><th>Cause</th><th>Solution</th></tr></thead>
+                <tbody>
+                    <tr><td>Widget not showing in KWGT</td><td>The ZIP was structured incorrectly.</td><td>Ensure <code>preset.json</code> is at the <strong>root</strong> of the ZIP, not inside a subfolder.</td></tr>
+                    <tr><td>Images are missing</td><td>The <code>kfile://</code> path is wrong or the image was not zipped.</td><td>Check that the bitmap path matches the ZIP structure exactly.</td></tr>
+                    <tr><td>Custom font falls back to system default</td><td>KWGT cannot find the font path.</td><td>Ensure the font name and path in <code>text_family</code> exactly matches the file in the <code>fonts/</code> folder.</td></tr>
+                    <tr><td>Widget is black or blank</td><td>Root dimensions are missing or 0.</td><td>Ensure <code>preset_info.width</code> and <code>height</code> are valid numbers greater than 0.</td></tr>
+                </tbody>
+            </table>
         </section>
 
     </main>
