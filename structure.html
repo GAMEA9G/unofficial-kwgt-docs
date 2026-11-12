@@ -1,11 +1,729 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><title>File structure · KWGT docs</title><link rel="stylesheet" href="assets/style.css"></head><body><nav><a href="index.html">Home</a><a href="structure.html" class="on">File structure</a><a href="positioning.html">Positioning</a><a href="shapes.html">Shapes</a><a href="text-icons-bitmaps.html">Text, icons, images</a><a href="containers.html">Containers</a><a href="toggles-globals.html">Toggles and globals</a><a href="formulas.html">Formulas</a><a href="events.html">Events and taps</a><a href="effects.html">Effects</a><a href="gotchas.html">Gotchas and install</a><a href="komponents.html">Komponents</a><a href="wave-progress-bar.html">Wave progress bar</a><a href="weather-icons.html">Weather icons</a><a href="analog-clock.html">Analog clock</a><a href="calendar-widget.html">Calendar widget</a></nav><main><h1>File structure</h1><p>A preset has <code>preset_info</code> (who and how big) and <code>preset_root</code> (the layers). First item in any list = bottom layer.</p><pre><code>{
-  "preset_info": { "version": 13, "title": "My Widget", "width": 400, "height": 200 },
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>File structure · KWGT docs</title>
+  <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+
+<nav>
+  <a href="index.html">Home</a>
+  <a href="structure.html" class="on">File structure</a>
+  <a href="positioning.html">Positioning</a>
+  <a href="shapes.html">Shapes</a>
+  <a href="text-icons-bitmaps.html">Text, icons, images</a>
+  <a href="containers.html">Containers</a>
+  <a href="toggles-globals.html">Toggles and globals</a>
+  <a href="formulas.html">Formulas</a>
+  <a href="events.html">Events and taps</a>
+  <a href="effects.html">Effects</a>
+  <a href="gotchas.html">Gotchas and install</a>
+  <a href="komponents.html">Komponents</a>
+  <a href="wave-progress-bar.html">Wave progress bar</a>
+  <a href="weather-icons.html">Weather icons</a>
+  <a href="analog-clock.html">Analog clock</a>
+  <a href="calendar-widget.html">Calendar widget</a>
+</nav>
+
+<main>
+
+<h1>KWGT file structure</h1>
+
+<p>
+  A KWGT preset is a structured document containing metadata,
+  a root layer, child modules, optional global variables and
+  internal events. A packaged <code>.kwgt</code> file additionally
+  contains the preset JSON and any required resources.
+</p>
+
+<p>
+  This page documents the observed structure of KWGT preset files.
+  Properties are classified according to their observed usage.
+  An undocumented property should not be assumed to be invalid
+  simply because its purpose is unknown.
+</p>
+
+<h2>1. Basic preset structure</h2>
+
+<p>
+  The main preset document contains two important top-level
+  properties: <code>preset_info</code> and <code>preset_root</code>.
+</p>
+
+<pre><code>{
+  "preset_info": {
+    "version": 13,
+    "title": "My Widget",
+    "description": "My custom KWGT preset",
+    "author": "Author",
+    "email": "",
+    "width": 400,
+    "height": 200
+  },
   "preset_root": {
     "internal_type": "RootLayerModule",
-    "viewgroup_items": [ ]
+    "viewgroup_items": []
   }
-}</code></pre><table><tr><th>preset_info</th><th>Meaning</th></tr><tr><td><code>version</code></td><td>Use 13. 11 and 12 also appear in real files.</td></tr><tr><td><code>title / description / author / email</code></td><td>Shown in the KWGT list. Email may be empty.</td></tr><tr><td><code>width / height</code></td><td>Canvas pixels. Generated files use them, but the real Calendar preset has neither and sizes everything from <code>si(rwidth)</code> and <code>si(rheight)</code>. In a generated file, 0 or missing may give a blank widget. Home-screen mapping is undocumented.</td></tr><tr><td><code>locked</code></td><td>true stops users editing layers.</td></tr><tr><td><code>features</code></td><td>Tags like "MUSIC NOTIFICATIONS BLUETOOTH". Empty string is fine.</td></tr><tr><td><code>release, archive, pflags, xscreens, yscreens</code></td><td>Internal. Files without them load.</td></tr></table><table><tr><th>preset_root</th><th>Meaning</th></tr><tr><td><code>internal_type</code></td><td>"RootLayerModule" in a widget preset. In komponent.json it is "KomponentModule" (see Komponents).</td></tr><tr><td><code>viewgroup_items</code></td><td>Modules directly in the root.</td></tr><tr><td><code>globals_list</code></td><td>Optional global variables (an object).</td></tr><tr><td><code>internal_events</code></td><td>Global taps. type may be omitted.</td></tr><tr><td><code>config_scale_value</code></td><td>Editor scale. Not required.</td></tr></table><h2>The .kwgt package</h2><pre><code>MyWidget.kwgt (ZIP)
-├── preset.json   (required, ZIP root)
+}</code></pre>
+
+<p>
+  This is a simplified structural example, not a guarantee that
+  every KWGT version will accept a preset containing only these
+  properties.
+</p>
+
+<h2>2. Top-level properties</h2>
+
+<table>
+  <tr>
+    <th>Property</th>
+    <th>Purpose</th>
+    <th>Status</th>
+  </tr>
+  <tr>
+    <td><code>preset_info</code></td>
+    <td>Preset metadata and configuration.</td>
+    <td>Observed</td>
+  </tr>
+  <tr>
+    <td><code>preset_root</code></td>
+    <td>Root module containing the widget's layers.</td>
+    <td>Observed</td>
+  </tr>
+</table>
+
+<h3>2.1 preset_info</h3>
+
+<p>
+  Contains metadata about the preset, including its version,
+  display information and dimensions.
+</p>
+
+<table>
+  <tr>
+    <th>Property</th>
+    <th>Description</th>
+    <th>Notes</th>
+  </tr>
+  <tr>
+    <td><code>version</code></td>
+    <td>Preset format version.</td>
+    <td>Version 13 is used in the documented examples. Versions 11 and 12 also appear in real presets.</td>
+  </tr>
+  <tr>
+    <td><code>title</code></td>
+    <td>Preset display name.</td>
+    <td>Used to identify the preset.</td>
+  </tr>
+  <tr>
+    <td><code>description</code></td>
+    <td>Preset description.</td>
+    <td>Preserve if present.</td>
+  </tr>
+  <tr>
+    <td><code>author</code></td>
+    <td>Author information.</td>
+    <td>Preserve if present.</td>
+  </tr>
+  <tr>
+    <td><code>email</code></td>
+    <td>Author email.</td>
+    <td>May be empty.</td>
+  </tr>
+  <tr>
+    <td><code>width</code></td>
+    <td>Preset width.</td>
+    <td>Observed in generated presets.</td>
+  </tr>
+  <tr>
+    <td><code>height</code></td>
+    <td>Preset height.</td>
+    <td>Observed in generated presets.</td>
+  </tr>
+  <tr>
+    <td><code>locked</code></td>
+    <td>Preset editing lock.</td>
+    <td>Observed as a boolean.</td>
+  </tr>
+  <tr>
+    <td><code>features</code></td>
+    <td>Preset feature tags.</td>
+    <td>Examples include MUSIC, NOTIFICATIONS and BLUETOOTH.</td>
+  </tr>
+  <tr>
+    <td><code>release</code></td>
+    <td>Internal metadata.</td>
+    <td>Purpose not fully documented.</td>
+  </tr>
+  <tr>
+    <td><code>archive</code></td>
+    <td>Internal metadata.</td>
+    <td>Purpose not fully documented.</td>
+  </tr>
+  <tr>
+    <td><code>pflags</code></td>
+    <td>Internal flags.</td>
+    <td>Purpose not fully documented.</td>
+  </tr>
+  <tr>
+    <td><code>xscreens</code></td>
+    <td>Internal screen configuration.</td>
+    <td>Purpose not fully documented.</td>
+  </tr>
+  <tr>
+    <td><code>yscreens</code></td>
+    <td>Internal screen configuration.</td>
+    <td>Purpose not fully documented.</td>
+  </tr>
+</table>
+
+<h3>Important: dimensions</h3>
+
+<p>
+  Do not assume that <code>width</code> and <code>height</code>
+  are always present in a real preset.
+</p>
+
+<p>
+  Some observed presets, including the Calendar example, omit
+  these properties and instead calculate dimensions through
+  formulas such as:
+</p>
+
+<pre><code>$si(rwidth)$
+$si(rheight)$</code></pre>
+
+<p>
+  This indicates that the actual rendering dimensions may depend
+  on the widget's assigned home-screen size.
+</p>
+
+<ul>
+  <li>Do not automatically insert dimensions when importing a preset.</li>
+  <li>Do not assume zero dimensions are valid.</li>
+  <li>Do not assume missing dimensions mean a broken preset.</li>
+  <li>Preserve existing dimension-related properties.</li>
+</ul>
+
+<p>
+  The complete mapping between preset dimensions and Android
+  home-screen widget dimensions remains undocumented.
+</p>
+
+<h2>3. Root module</h2>
+
+<p>
+  <code>preset_root</code> represents the root container of
+  a widget. It holds the modules that make up the preset.
+</p>
+
+<pre><code>{
+  "preset_root": {
+    "internal_type": "RootLayerModule",
+    "viewgroup_items": [],
+    "globals_list": {},
+    "internal_events": [],
+    "config_scale_value": 1
+  }
+}</code></pre>
+
+<table>
+  <tr>
+    <th>Property</th>
+    <th>Description</th>
+    <th>Notes</th>
+  </tr>
+  <tr>
+    <td><code>internal_type</code></td>
+    <td>Identifies the root module type.</td>
+    <td>Widget root uses <code>RootLayerModule</code>.</td>
+  </tr>
+  <tr>
+    <td><code>viewgroup_items</code></td>
+    <td>Contains child modules.</td>
+    <td>Defines the layer hierarchy.</td>
+  </tr>
+  <tr>
+    <td><code>globals_list</code></td>
+    <td>Global variables.</td>
+    <td>Observed as an object.</td>
+  </tr>
+  <tr>
+    <td><code>internal_events</code></td>
+    <td>Internal event definitions.</td>
+    <td>Used for root-level interactions.</td>
+  </tr>
+  <tr>
+    <td><code>config_scale_value</code></td>
+    <td>Editor scale configuration.</td>
+    <td>Not required in every observed example.</td>
+  </tr>
+</table>
+
+<h2>4. Layer hierarchy</h2>
+
+<p>
+  The <code>viewgroup_items</code> array stores the child modules
+  of a layer or container.
+</p>
+
+<p>
+  A simplified example:
+</p>
+
+<pre><code>{
+  "internal_type": "RootLayerModule",
+  "viewgroup_items": [
+    {
+      "internal_type": "ShapeModule"
+    },
+    {
+      "internal_type": "TextModule"
+    },
+    {
+      "internal_type": "BitmapModule"
+    }
+  ]
+}</code></pre>
+
+<h3>Layer ordering</h3>
+
+<p>
+  In the observed preset structure, the first item in a
+  <code>viewgroup_items</code> list is the bottom layer.
+  Later items are rendered above earlier items.
+</p>
+
+<p>
+  Example:
+</p>
+
+<pre><code>[
+  { "internal_type": "ShapeModule" },
+  { "internal_type": "TextModule" }
+]</code></pre>
+
+<p>
+  The shape is below the text in this example.
+</p>
+
+<h3>Nested containers</h3>
+
+<p>
+  Containers can hold their own child modules. This creates a
+  hierarchy rather than a flat list of independent layers.
+</p>
+
+<pre><code>{
+  "internal_type": "RootLayerModule",
+  "viewgroup_items": [
+    {
+      "internal_type": "OverlapLayerModule",
+      "viewgroup_items": [
+        {
+          "internal_type": "ShapeModule"
+        },
+        {
+          "internal_type": "TextModule"
+        }
+      ]
+    }
+  ]
+}</code></pre>
+
+<p>
+  The example illustrates the nesting relationship. A complete
+  valid module requires the additional properties expected by
+  the corresponding KWGT module type.
+</p>
+
+<h2>5. Module types</h2>
+
+<p>
+  The <code>internal_type</code> property identifies the type of
+  module represented by an object.
+</p>
+
+<p>Examples observed or used in this documentation:</p>
+
+<table>
+  <tr>
+    <th>Module</th>
+    <th>Purpose</th>
+  </tr>
+  <tr>
+    <td><code>RootLayerModule</code></td>
+    <td>Widget root.</td>
+  </tr>
+  <tr>
+    <td><code>KomponentModule</code></td>
+    <td>Komponent root.</td>
+  </tr>
+  <tr>
+    <td><code>ShapeModule</code></td>
+    <td>Shape layer.</td>
+  </tr>
+  <tr>
+    <td><code>TextModule</code></td>
+    <td>Text layer.</td>
+  </tr>
+  <tr>
+    <td><code>BitmapModule</code></td>
+    <td>Image or bitmap layer.</td>
+  </tr>
+  <tr>
+    <td><code>OverlapLayerModule</code></td>
+    <td>Overlap container.</td>
+  </tr>
+</table>
+
+<p>
+  This is not a complete module registry. Do not reject an
+  imported module merely because its type is not listed here.
+</p>
+
+<h2>6. Globals and internal events</h2>
+
+<p>
+  The root module can contain global variables and internal
+  event definitions.
+</p>
+
+<h3>6.1 globals_list</h3>
+
+<p>
+  Globals provide reusable values throughout a preset.
+  Their complete schema depends on the global type.
+</p>
+
+<pre><code>{
+  "globals_list": {}
+}</code></pre>
+
+<p>
+  See <a href="toggles-globals.html">Toggles and globals</a>
+  for the available global types and their properties.
+</p>
+
+<h3>6.2 internal_events</h3>
+
+<p>
+  Internal events represent interactions associated with
+  a preset or module.
+</p>
+
+<pre><code>{
+  "internal_events": []
+}</code></pre>
+
+<p>
+  Do not assume every event requires an explicit <code>type</code>
+  property. Some observed structures omit it.
+</p>
+
+<p>
+  See <a href="events.html">Events and taps</a> for event
+  definitions and tap actions.
+</p>
+
+<h2>7. The .kwgt package</h2>
+
+<p>
+  A <code>.kwgt</code> file is distributed as a package containing
+  preset data and potentially additional resources.
+</p>
+
+<p>
+  The documented package layout:
+</p>
+
+<pre><code>MyWidget.kwgt
+│
+├── preset.json
+│
 ├── preset_thumb_portrait.jpg
 ├── preset_thumb_landscape.jpg
-├── bitmaps/  fonts/  icons/   (optional)</code></pre><p>Link bundled files with <code>kfile://org.kustom.provider/widgets/MyWidget.kwgt/fonts/Custom.ttf</code>. Renaming the .kwgt breaks these links. Built-in fonts skip the name: <code>kfile://org.kustom.provider/fonts/ProductSans-Medium.ttf</code>. Whether KWGT loads a file without thumbnails is unconfirmed.</p><div class="pg"><a href="positioning.html">Positioning →</a></div></main><script src="assets/docs.js"></script></body></html>
+│
+├── bitmaps/
+│   └── ...
+│
+├── fonts/
+│   └── ...
+│
+└── icons/
+    └── ...</code></pre>
+
+<table>
+  <tr>
+    <th>File / Directory</th>
+    <th>Description</th>
+    <th>Status</th>
+  </tr>
+  <tr>
+    <td><code>preset.json</code></td>
+    <td>Main preset definition.</td>
+    <td>Required in the documented package layout.</td>
+  </tr>
+  <tr>
+    <td><code>preset_thumb_portrait.jpg</code></td>
+    <td>Portrait preview image.</td>
+    <td>Observed.</td>
+  </tr>
+  <tr>
+    <td><code>preset_thumb_landscape.jpg</code></td>
+    <td>Landscape preview image.</td>
+    <td>Observed.</td>
+  </tr>
+  <tr>
+    <td><code>bitmaps/</code></td>
+    <td>Bundled image resources.</td>
+    <td>Optional.</td>
+  </tr>
+  <tr>
+    <td><code>fonts/</code></td>
+    <td>Bundled font resources.</td>
+    <td>Optional.</td>
+  </tr>
+  <tr>
+    <td><code>icons/</code></td>
+    <td>Icon resources.</td>
+    <td>Optional.</td>
+  </tr>
+</table>
+
+<p>
+  This is an observed layout, not an exhaustive specification
+  of every file KWGT may store in a package.
+</p>
+
+<h2>8. Resource references</h2>
+
+<p>
+  Bundled resources can be referenced through KWGT resource
+  paths.
+</p>
+
+<h3>8.1 Bundled resources</h3>
+
+<pre><code>kfile://org.kustom.provider/widgets/MyWidget.kwgt/fonts/Custom.ttf</code></pre>
+
+<p>
+  The example points to a font stored inside the preset package.
+</p>
+
+<h3>8.2 Built-in resources</h3>
+
+<pre><code>kfile://org.kustom.provider/fonts/ProductSans-Medium.ttf</code></pre>
+
+<p>
+  Built-in resources use the provider's font directory rather
+  than a widget package directory.
+</p>
+
+<h3>Resource handling rules</h3>
+
+<ul>
+  <li>Preserve existing resource paths when importing a preset.</li>
+  <li>Do not assume a resource is embedded just because a reference exists.</li>
+  <li>Check that referenced resources exist before exporting.</li>
+  <li>Preserve the original package name when required by a resource path.</li>
+  <li>Do not rewrite resource references without understanding their format.</li>
+</ul>
+
+<p>
+  Renaming a package can break references that contain its
+  original filename. The exact resource resolution rules should
+  be tested against real KWGT exports.
+</p>
+
+<h2>9. Importing and exporting presets</h2>
+
+<p>
+  A compatible editor must distinguish between reading a preset,
+  modifying its data and generating a package.
+</p>
+
+<h3>9.1 Import process</h3>
+
+<ol>
+  <li>Identify whether the input is a raw JSON document or a ZIP-based <code>.kwgt</code> package.</li>
+  <li>If it is an archive, locate and read <code>preset.json</code>.</li>
+  <li>Parse the JSON without modifying the original data.</li>
+  <li>Identify <code>preset_info</code> and <code>preset_root</code>.</li>
+  <li>Build a representation of the module hierarchy.</li>
+  <li>Resolve resource references without discarding their original paths.</li>
+  <li>Keep unsupported properties and modules intact.</li>
+</ol>
+
+<h3>9.2 Editing process</h3>
+
+<p>
+  An editor should modify only the properties that the user
+  explicitly changes.
+</p>
+
+<ul>
+  <li>Do not reconstruct the entire preset from a limited editor model.</li>
+  <li>Do not remove properties that the editor does not understand.</li>
+  <li>Do not silently replace unknown module types.</li>
+  <li>Preserve nested hierarchy and array ordering.</li>
+  <li>Preserve unknown metadata and resource references.</li>
+</ul>
+
+<h3>9.3 Export process</h3>
+
+<ol>
+  <li>Serialize the modified preset JSON.</li>
+  <li>Preserve unsupported and unmodified properties.</li>
+  <li>Include all required resource files.</li>
+  <li>Preserve the expected archive directory structure.</li>
+  <li>Create the ZIP-based package with the correct <code>.kwgt</code> extension.</li>
+  <li>Validate the resulting archive.</li>
+  <li>Test the exported package in KWGT itself.</li>
+</ol>
+
+<h2>10. Compatibility and version handling</h2>
+
+<p>
+  Preset format versions must not be confused with the version
+  of the editor that created or modified the preset.
+</p>
+
+<table>
+  <tr>
+    <th>Version</th>
+    <th>Observation</th>
+    <th>Compatibility</th>
+  </tr>
+  <tr>
+    <td>11</td>
+    <td>Found in real preset files.</td>
+    <td>Differences not fully documented.</td>
+  </tr>
+  <tr>
+    <td>12</td>
+    <td>Found in real preset files.</td>
+    <td>Differences not fully documented.</td>
+  </tr>
+  <tr>
+    <td>13</td>
+    <td>Used in documented examples.</td>
+    <td>Reference version for this documentation.</td>
+  </tr>
+</table>
+
+<p>
+  Do not automatically upgrade an imported preset's version
+  number without understanding the format changes involved.
+</p>
+
+<p>
+  A version number alone does not prove that a preset is
+  compatible with every KWGT release.
+</p>
+
+<h2>11. Validation checklist</h2>
+
+<p>
+  Use this checklist when developing a preset parser, editor
+  or exporter.
+</p>
+
+<ul>
+  <li>Confirm that the JSON is syntactically valid.</li>
+  <li>Confirm that the expected top-level properties exist.</li>
+  <li>Check that the root module has the expected structure.</li>
+  <li>Validate child module arrays.</li>
+  <li>Preserve unknown module types.</li>
+  <li>Preserve unknown properties.</li>
+  <li>Check nested container relationships.</li>
+  <li>Preserve layer ordering.</li>
+  <li>Check resource references.</li>
+  <li>Check that required archive entries exist.</li>
+  <li>Test the package in the actual KWGT application.</li>
+</ul>
+
+<h2>12. Common implementation mistakes</h2>
+
+<table>
+  <tr>
+    <th>Mistake</th>
+    <th>Correct approach</th>
+  </tr>
+  <tr>
+    <td>Rebuilding imported JSON using only known properties.</td>
+    <td>Preserve the original JSON structure and modify only intended properties.</td>
+  </tr>
+  <tr>
+    <td>Removing unknown fields.</td>
+    <td>Keep unknown fields until their behavior is understood.</td>
+  </tr>
+  <tr>
+    <td>Assuming every preset has width and height.</td>
+    <td>Handle presets that use runtime sizing formulas.</td>
+  </tr>
+  <tr>
+    <td>Assuming every module is a root-level module.</td>
+    <td>Support nested containers and child hierarchies.</td>
+  </tr>
+  <tr>
+    <td>Assuming valid JSON means a valid KWGT preset.</td>
+    <td>Validate the archive and test the preset in KWGT.</td>
+  </tr>
+  <tr>
+    <td>Changing the archive filename without checking resource references.</td>
+    <td>Preserve package-dependent paths or update them carefully.</td>
+  </tr>
+  <tr>
+    <td>Assuming undocumented properties are unnecessary.</td>
+    <td>Preserve them and mark their behavior as unknown.</td>
+  </tr>
+</table>
+
+<h2>13. Known limitations</h2>
+
+<p>
+  This documentation describes observed structures rather than
+  a complete official KWGT serialization specification.
+</p>
+
+<ul>
+  <li>The complete schema for every module is not documented.</li>
+  <li>The exact relationship between canvas dimensions and home-screen dimensions is unknown.</li>
+  <li>The full set of preset version differences is unknown.</li>
+  <li>The complete archive resource resolution process is not documented.</li>
+  <li>Optionality of some metadata and thumbnail files needs further testing.</li>
+</ul>
+
+<p>
+  Properties whose behavior has not been verified should be
+  treated as unknown, not invalid.
+</p>
+
+<h2>Related documentation</h2>
+
+<ul>
+  <li><a href="positioning.html">Positioning and dimensions</a></li>
+  <li><a href="shapes.html">Shape modules</a></li>
+  <li><a href="text-icons-bitmaps.html">Text, icons and bitmaps</a></li>
+  <li><a href="containers.html">Containers and nested layers</a></li>
+  <li><a href="toggles-globals.html">Toggles and globals</a></li>
+  <li><a href="formulas.html">KWGT formulas</a></li>
+  <li><a href="events.html">Events and taps</a></li>
+  <li><a href="effects.html">Effects</a></li>
+  <li><a href="gotchas.html">Gotchas and installation</a></li>
+  <li><a href="komponents.html">Komponents</a></li>
+</ul>
+
+<div class="pg">
+  <a href="positioning.html">Next: Positioning →</a>
+</div>
+
+</main>
+
+<script src="assets/docs.js"></script>
+</body>
+</html>
